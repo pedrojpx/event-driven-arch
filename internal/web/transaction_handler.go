@@ -17,7 +17,7 @@ func NewWebTransactionHandler(uc createtransaction.CreateTransactionUsecase) *We
 	}
 }
 
-func (h *WebTransactionHandler) CreateTransaction(w http.ResponseWriter, r http.Request) {
+func (h *WebTransactionHandler) CreateTransaction(w http.ResponseWriter, r *http.Request) {
 	var dto createtransaction.CreateTrasactionInputDTO
 	err := json.NewDecoder(r.Body).Decode(&dto)
 	if err != nil {

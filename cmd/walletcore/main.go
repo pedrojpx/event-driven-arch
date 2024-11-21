@@ -11,6 +11,7 @@ import (
 	createclient "github.com/pedrojpx/ms-wallet/internal/usecase/create_client"
 	createtransaction "github.com/pedrojpx/ms-wallet/internal/usecase/create_transaction"
 	"github.com/pedrojpx/ms-wallet/internal/web"
+	"github.com/pedrojpx/ms-wallet/internal/web/webserver"
 	"github.com/pedrojpx/ms-wallet/pkg/events"
 )
 
@@ -32,7 +33,13 @@ func main() {
 	createAccountUseCase := createaccount.NewCreateAccountUseCase(accountDB, clientDB)
 	createTransactionUsecase := createtransaction.NewCreateTransactionUseCase(accountDB, transactionDB, eventDispatcher, event.NewTransactionCreatedEvent())
 
+	webserver := webserver.NewWebServer(":3000")
 	createClientHandler := web.NewWebClientHandler(*createClientUseCase)
-	createAccountUseCase := web.NewWebAccountHandler(*createAccountUseCase)
-	createTransactionUsecase = web.NewWebTransactionHandler(*createTransactionUsecase)
+	createAccountHandler := web.NewWebAccountHandler(*createAccountUseCase)
+	createTransactionHandler := web.NewWebTransactionHandler(*createTransactionUsecase)
+
+	webserver.AddHandler("/client", createClientHandler.CreateClient)
+	webserver.AddHandler("/accounts", createAccountHandler.CreateAccount)
+	webserver.AddHandler("/transactions", createTransactionHandler.CreateTransaction)
+	webserver.Start()
 }
