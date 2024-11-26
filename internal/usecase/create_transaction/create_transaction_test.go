@@ -1,10 +1,12 @@
 package createtransaction
 
 import (
+	"context"
 	"testing"
 
 	"github.com/pedrojpx/ms-wallet/internal/entity"
 	"github.com/pedrojpx/ms-wallet/internal/event"
+	"github.com/pedrojpx/ms-wallet/internal/usecase/mocks"
 	"github.com/pedrojpx/ms-wallet/pkg/events"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -28,6 +30,11 @@ func (m *AccountGatewayMock) Save(account *entity.Account) error {
 	return args.Error(0)
 }
 
+func (m *AccountGatewayMock) UpdateBalance(account *entity.Account) error {
+	args := m.Called(account)
+	return args.Error(0)
+}
+
 func (m *AccountGatewayMock) FindByID(id string) (*entity.Account, error) {
 	args := m.Called(id)
 	return args.Get(0).(*entity.Account), args.Error(1)
@@ -41,26 +48,20 @@ func TestCreateTransactionUsecase_Execute(t *testing.T) {
 	acc2 := entity.NewAccount(c2)
 	acc2.Credit(1000)
 
-	mockAccountGW := &AccountGatewayMock{}
-	mockAccountGW.On("FindByID", acc1.ID).Return(acc1, nil)
-	mockAccountGW.On("FindByID", acc2.ID).Return(acc2, nil)
-
-	mockTransactionGW := &TransactionGatewayMock{}
-	mockTransactionGW.On("Create", mock.Anything).Return(nil)
-
 	input := CreateTrasactionInputDTO{
 		AccountIDFrom: acc1.ID,
 		AccountIDTo:   acc2.ID,
 		Amount:        500.0,
 	}
 
-	uc := NewCreateTransactionUseCase(mockAccountGW, mockTransactionGW, events.NewEventDispatcher(), event.NewTransactionCreatedEvent())
-	output, err := uc.Execute(input)
+	mockUow := &mocks.UowMock{}
+	mockUow.On("Do", mock.Anything).Return(nil)
+
+	uc := NewCreateTransactionUseCase(mockUow, events.NewEventDispatcher(), event.NewTransactionCreatedEvent())
+	output, err := uc.Execute(context.Background(), input)
 
 	assert.Nil(t, err)
 	assert.NotNil(t, output)
-	mockAccountGW.AssertExpectations(t)
-	mockAccountGW.AssertNumberOfCalls(t, "FindByID", 2)
-	mockTransactionGW.AssertExpectations(t)
-	mockTransactionGW.AssertNumberOfCalls(t, "Create", 1)
+	mockUow.AssertExpectations(t)
+	mockUow.AssertNumberOfCalls(t, "Do", 1)
 }
