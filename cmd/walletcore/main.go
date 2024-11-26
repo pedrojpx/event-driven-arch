@@ -16,7 +16,7 @@ import (
 )
 
 func main() {
-	db, err := sql.Open("mysql", fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8&parseTime=True&loc=Local", "root", "root", "mysql", "3306", "wallet"))
+	db, err := sql.Open("mysql", fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8&parseTime=True&loc=Local", "root", "root", "127.0.0.1", "3306", "wallet"))
 	if err != nil {
 		panic(err)
 	}
@@ -38,7 +38,7 @@ func main() {
 	createAccountHandler := web.NewWebAccountHandler(*createAccountUseCase)
 	createTransactionHandler := web.NewWebTransactionHandler(*createTransactionUsecase)
 
-	webserver.AddHandler("/client", createClientHandler.CreateClient)
+	webserver.AddHandler("/clients", createClientHandler.CreateClient)
 	webserver.AddHandler("/accounts", createAccountHandler.CreateAccount)
 	webserver.AddHandler("/transactions", createTransactionHandler.CreateTransaction)
 	webserver.Start()
