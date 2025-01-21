@@ -21,20 +21,20 @@ import (
 )
 
 func main() {
-	db, err := sql.Open("mysql", fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8&parseTime=True&loc=Local", "root", "root", "127.0.0.1", "3306", "wallet"))
+	db, err := sql.Open("mysql", fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8&parseTime=True&loc=Local", "root", "root", "mysql", "3306", "wallet"))
 	if err != nil {
 		panic(err)
 	}
 	defer db.Close()
 
 	configMap := ckafka.ConfigMap{
-		"bootstrap.servers": "kafka:9094",
+		"bootstrap.servers": "kafka:29092",
 		"group.id":          "wallet",
 	}
 	kafkaProducer := kafka.NewKafkaProducer(&configMap)
 
 	eventDispatcher := events.NewEventDispatcher()
-	eventDispatcher.Register("TrasactionCreated", handler.NewTransactionCreatedKafkaHandler(kafkaProducer))
+	eventDispatcher.Register("TransactionCreated", handler.NewTransactionCreatedKafkaHandler(kafkaProducer))
 
 	clientDB := database.NewClientDB(db)
 	accountDB := database.NewAccountDB(db)
@@ -52,7 +52,7 @@ func main() {
 	createAccountUseCase := createaccount.NewCreateAccountUseCase(accountDB, clientDB)
 	createTransactionUsecase := createtransaction.NewCreateTransactionUseCase(uow, eventDispatcher, event.NewTransactionCreatedEvent())
 
-	webserver := webserver.NewWebServer(":3000")
+	webserver := webserver.NewWebServer(":8080")
 	createClientHandler := web.NewWebClientHandler(*createClientUseCase)
 	createAccountHandler := web.NewWebAccountHandler(*createAccountUseCase)
 	createTransactionHandler := web.NewWebTransactionHandler(*createTransactionUsecase)
@@ -60,5 +60,7 @@ func main() {
 	webserver.AddHandler("/clients", createClientHandler.CreateClient)
 	webserver.AddHandler("/accounts", createAccountHandler.CreateAccount)
 	webserver.AddHandler("/transactions", createTransactionHandler.CreateTransaction)
+
+	fmt.Println("Server is running")
 	webserver.Start()
 }

@@ -1,4 +1,5 @@
-POST http://localhost:3000/clients HTTP/1.1
+### creates Jane
+POST http://localhost:8080/clients HTTP/1.1
 Content-Type: application/json
 
 {
@@ -6,27 +7,36 @@ Content-Type: application/json
     "email": "j@j.com"
 }
 
-### jane's account
-POST http://localhost:3000/accounts HTTP/1.1
+### creates John
+POST http://localhost:8080/clients HTTP/1.1
 Content-Type: application/json
 
 {
-    "client_id":"aeab6609-114f-4598-8812-3a84861e9671"
-}
-### john's account
-POST http://localhost:3000/accounts HTTP/1.1
-Content-Type: application/json
-
-{
-    "client_id":"d357761d-4122-446e-8736-4d3ba7aa001e"
+    "name": "John Doe",
+    "email": "j@j.com"
 }
 
-### transaction
-POST http://localhost:3000/transactions HTTP/1.1
+### creates jane's account
+POST http://localhost:8080/accounts HTTP/1.1
 Content-Type: application/json
 
 {
-    "account_from":"b888990e-c392-48e9-8766-e754b1041a73",
-    "account_to":"05f26ad8-f153-4851-b62d-bb79599b3d3e",
-    "amount": 75
+    "client_id":"0b3b962e-8742-40d7-bda5-55c4b36a95ff"
+}
+### creates john's account
+POST http://localhost:8080/accounts HTTP/1.1
+Content-Type: application/json
+
+{
+    "client_id":"475efed7-6208-4938-abaf-8a417d936952"
+}
+
+### transaction from jane to john
+POST http://localhost:8080/transactions HTTP/1.1
+Content-Type: application/json
+
+{
+    "account_from":"cfa72612-9f48-4642-83f1-57c715f1eccb",
+    "account_to":"468562bc-d96b-4087-8fb5-255a48f3655d",
+    "amount": 1
 }
