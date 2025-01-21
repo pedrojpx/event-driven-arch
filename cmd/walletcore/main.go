@@ -5,15 +5,18 @@ import (
 	"database/sql"
 	"fmt"
 
+	ckafka "github.com/confluentinc/confluent-kafka-go/kafka"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/pedrojpx/ms-wallet/internal/database"
 	"github.com/pedrojpx/ms-wallet/internal/event"
+	"github.com/pedrojpx/ms-wallet/internal/event/handler"
 	createaccount "github.com/pedrojpx/ms-wallet/internal/usecase/create_account"
 	createclient "github.com/pedrojpx/ms-wallet/internal/usecase/create_client"
 	createtransaction "github.com/pedrojpx/ms-wallet/internal/usecase/create_transaction"
 	"github.com/pedrojpx/ms-wallet/internal/web"
 	"github.com/pedrojpx/ms-wallet/internal/web/webserver"
 	"github.com/pedrojpx/ms-wallet/pkg/events"
+	"github.com/pedrojpx/ms-wallet/pkg/kafka"
 	"github.com/pedrojpx/ms-wallet/pkg/uow"
 )
 
@@ -24,8 +27,14 @@ func main() {
 	}
 	defer db.Close()
 
+	configMap := ckafka.ConfigMap{
+		"bootstrap.servers": "kafka:9094",
+		"group.id":          "wallet",
+	}
+	kafkaProducer := kafka.NewKafkaProducer(&configMap)
+
 	eventDispatcher := events.NewEventDispatcher()
-	// eventDispatcher.Register("TrasactionCreated", handler)
+	eventDispatcher.Register("TrasactionCreated", handler.NewTransactionCreatedKafkaHandler(kafkaProducer))
 
 	clientDB := database.NewClientDB(db)
 	accountDB := database.NewAccountDB(db)
