@@ -22,22 +22,32 @@ type CreateTransactionOutputDTO struct {
 	Amount        float64 `json:"amount"`
 }
 
+type BalanceUpdatedOutputDTO struct {
+	AccountIDFrom  string  `json:"account_from"`
+	BalanceAccFrom float64 `json:"balance_account_from"`
+	AccountIDTo    string  `json:"account_to"`
+	BalanceAccTo   float64 `json:"balance_account_to"`
+}
+
 type CreateTransactionUsecase struct {
 	uow                     uow.UowInterface
 	eventDistpatcher        events.EventDispatcherInterface
 	transactionCreatedEvent events.EventInterface
+	balanceUpdatedEvent     events.EventInterface
 }
 
-func NewCreateTransactionUseCase(u uow.UowInterface, ed events.EventDispatcherInterface, e events.EventInterface) *CreateTransactionUsecase {
+func NewCreateTransactionUseCase(u uow.UowInterface, ed events.EventDispatcherInterface, e events.EventInterface, e2 events.EventInterface) *CreateTransactionUsecase {
 	return &CreateTransactionUsecase{
 		uow:                     u,
 		eventDistpatcher:        ed,
 		transactionCreatedEvent: e,
+		balanceUpdatedEvent:     e2,
 	}
 }
 
 func (uc *CreateTransactionUsecase) Execute(ctx context.Context, input CreateTrasactionInputDTO) (*CreateTransactionOutputDTO, error) {
-	output := &CreateTransactionOutputDTO{}
+	transactionCreatedOutput := &CreateTransactionOutputDTO{}
+	balanceUpdatedOutput := &BalanceUpdatedOutputDTO{}
 	err := uc.uow.Do(ctx, func(_ *uow.Uow) error {
 		accRepo := uc.getAccountRepo(ctx)
 		transRepo := uc.getTransactionRepo(ctx)
@@ -60,10 +70,16 @@ func (uc *CreateTransactionUsecase) Execute(ctx context.Context, input CreateTra
 		}
 		err = accRepo.UpdateBalance(from)
 		err = accRepo.UpdateBalance(to)
-		output.TransactionID = transactino.ID
-		output.AccountIDFrom = transactino.From.Client.ID
-		output.AccountIDTo = transactino.To.Client.ID
-		output.Amount = transactino.Amount
+		transactionCreatedOutput.TransactionID = transactino.ID
+		transactionCreatedOutput.AccountIDFrom = transactino.From.Client.ID
+		transactionCreatedOutput.AccountIDTo = transactino.To.Client.ID
+		transactionCreatedOutput.Amount = transactino.Amount
+
+		balanceUpdatedOutput.AccountIDFrom = transactino.From.Client.ID
+		balanceUpdatedOutput.AccountIDTo = transactino.To.Client.ID
+		balanceUpdatedOutput.BalanceAccFrom = transactino.From.Balance
+		balanceUpdatedOutput.BalanceAccTo = transactino.To.Balance
+
 		return nil
 	})
 
@@ -71,10 +87,13 @@ func (uc *CreateTransactionUsecase) Execute(ctx context.Context, input CreateTra
 		return nil, err
 	}
 
-	uc.transactionCreatedEvent.SetPayload(output)
+	uc.transactionCreatedEvent.SetPayload(transactionCreatedOutput)
 	uc.eventDistpatcher.Dispatch(uc.transactionCreatedEvent)
 
-	return output, nil
+	uc.balanceUpdatedEvent.SetPayload(balanceUpdatedOutput)
+	uc.eventDistpatcher.Dispatch(uc.balanceUpdatedEvent)
+
+	return transactionCreatedOutput, nil
 }
 
 func (uc *CreateTransactionUsecase) getAccountRepo(ctx context.Context) gateway.AccountGateway {

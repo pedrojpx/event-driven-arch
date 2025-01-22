@@ -57,7 +57,7 @@ func TestCreateTransactionUsecase_Execute(t *testing.T) {
 	mockUow := &mocks.UowMock{}
 	mockUow.On("Do", mock.Anything).Return(nil)
 
-	uc := NewCreateTransactionUseCase(mockUow, events.NewEventDispatcher(), event.NewTransactionCreatedEvent())
+	uc := NewCreateTransactionUseCase(mockUow, events.NewEventDispatcher(), event.NewTransactionCreatedEvent(), event.NewBalanceUpdatedEvent())
 	output, err := uc.Execute(context.Background(), input)
 
 	assert.Nil(t, err)
