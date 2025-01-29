@@ -15,8 +15,8 @@ services:
 
   goapp:
     build: .
-    volumes:
-      - .:/app
+    # volumes: 
+    #   - .:/app
     ports:
       - 8080:8080
 
