@@ -62,6 +62,6 @@ func main() {
 	webserver.AddHandler("/accounts", createAccountHandler.CreateAccount)
 	webserver.AddHandler("/transactions", createTransactionHandler.CreateTransaction)
 
-	fmt.Println("Server is running")
+	fmt.Println("Walletcore is running")
 	webserver.Start()
 }
