@@ -17,7 +17,7 @@ type BalanceResponse struct {
 	Balance int    `json:"balance"`
 }
 
-func BewBalanceService(db *sql.DB) *BalanceService {
+func NewBalanceService(db *sql.DB) *BalanceService {
 	return &BalanceService{
 		db: db,
 	}

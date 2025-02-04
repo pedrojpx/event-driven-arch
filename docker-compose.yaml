@@ -1,7 +1,7 @@
 version: '3'
 
 services:
-  # for local development
+  # == for local development
   # mysql:
   #   image: mysql:5.7
   #   platform: linux/amd64
@@ -10,9 +10,19 @@ services:
   #     - MYSQL_DATABASE=wallet
   #     - MYSQL_PASSWORD=root
   #   ports:
-  #     - 3306:3306
+  #     - 3307:3307
   #   volumes:
-  #     - .docker/mysql:/var/lib/mysql
+  #     - .docker/mysql:/var/lib/mysql  #remove from dockerignore to use this
+
+  docker-dev:
+    build: 
+      dockerfile: ./dev.Dockerfile
+    volumes: 
+      - .:/app
+    ports:
+      - 8081:8081
+  
+  # == for local development
 
   mysql2:
     image: mysql:9.2
@@ -22,7 +32,7 @@ services:
       - MYSQL_DATABASE=wallet
       - MYSQL_PASSWORD=root
     ports:
-      - 3307:3307
+      - 3306:3306
     volumes:
       - ./initdb:/docker-entrypoint-initdb.d
 
@@ -32,6 +42,12 @@ services:
     #   - .:/app
     ports:
       - 8080:8080
+
+  balancesapp:
+    build:
+      dockerfile: ./balances.Dockerfile
+    ports:
+      - 3003:3003
 
   zookeeper:
     image: "confluentinc/cp-zookeeper:6.1.0"

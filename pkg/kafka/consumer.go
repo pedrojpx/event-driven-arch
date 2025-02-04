@@ -1,6 +1,10 @@
 package kafka
 
-import ckafka "github.com/confluentinc/confluent-kafka-go/kafka"
+import (
+	"fmt"
+
+	ckafka "github.com/confluentinc/confluent-kafka-go/kafka"
+)
 
 type Consumer struct {
 	ConfigMap *ckafka.ConfigMap
@@ -19,14 +23,25 @@ func (c *Consumer) Consume(msgChan chan *ckafka.Message) error {
 	if err != nil {
 		panic(err)
 	}
+	// fmt.Println("created new consumer with")
+	// fmt.Println(c.ConfigMap)
+
 	err = consumer.SubscribeTopics(c.Topics, nil)
 	if err != nil {
 		panic(err)
 	}
+	// fmt.Println("subscribed to topics")
+	// fmt.Println(c.Topics)
+
 	for {
+		// fmt.Println("waiting msg in consume function")
 		msg, err := consumer.ReadMessage(-1)
+		// fmt.Println("got it in consume function")
 		if err == nil {
+			// fmt.Println(string(msg.Value))
 			msgChan <- msg
+		} else {
+			fmt.Println(err.Error())
 		}
 	}
 }
