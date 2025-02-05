@@ -42,7 +42,7 @@ Content-Type: application/json
 }
 
 ### get balance for jane
-GET http://localhost:8081/balances/cfa72612-9f48-4642-83f1-57c715f1eccb HTTP/1.1
+GET http://localhost:3003/balances/cfa72612-9f48-4642-83f1-57c715f1eccb HTTP/1.1
 
 ### get balance for john
-GET http://localhost:8081/balances/468562bc-d96b-4087-8fb5-255a48f3655d HTTP/1.1
+GET http://localhost:3003/balances/468562bc-d96b-4087-8fb5-255a48f3655d HTTP/1.1
