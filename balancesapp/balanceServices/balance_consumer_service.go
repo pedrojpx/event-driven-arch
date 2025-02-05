@@ -36,14 +36,11 @@ func (b *BalanceKafkaConsumer) Start() {
 	msg := make(chan *ckafka.Message)
 	go func(m chan *ckafka.Message) {
 		for {
-			fmt.Println("\n=====\nwaiting msg")
 			go b.consumer.Consume(m)
 			var received BalanceConsumerInputDTO
-			json.Unmarshal((<-m).Value, &received)
-			fmt.Println(string((<-m).Value))
-			fmt.Println(received)
+			gotit := (<-m).Value
+			json.Unmarshal(gotit, &received)
 			b.saveBalances(received)
-			fmt.Println("received ====")
 		}
 	}(msg)
 }
@@ -51,8 +48,8 @@ func (b *BalanceKafkaConsumer) Start() {
 func (b *BalanceKafkaConsumer) saveBalances(balances BalanceConsumerInputDTO) error {
 	query := "insert into accounts (id, balance) values (?, ?) ON DUPLICATE KEY UPDATE balance=?"
 
-	fmt.Println("inserting into db")
-	fmt.Println(balances)
+	fmt.Println("inserting this into db: ")
+	fmt.Printf("%v", balances)
 
 	stmt, err := b.db.Prepare(query)
 	if err != nil {
