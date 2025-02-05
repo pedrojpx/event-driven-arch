@@ -1,4 +1,4 @@
-package BalanceService
+package balanceServices
 
 import (
 	"database/sql"
@@ -8,22 +8,22 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
-type BalanceService struct {
+type BalanceDBService struct {
 	db *sql.DB
 }
 
-type BalanceResponse struct {
+type GetBalanceResponse struct {
 	AccId   string `json:"accId"`
 	Balance int    `json:"balance"`
 }
 
-func NewBalanceService(db *sql.DB) *BalanceService {
-	return &BalanceService{
+func NewBalanceService(db *sql.DB) *BalanceDBService {
+	return &BalanceDBService{
 		db: db,
 	}
 }
 
-func (b *BalanceService) BalanceHandler(w http.ResponseWriter, r *http.Request) {
+func (b *BalanceDBService) BalanceHandler(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "accId")
 
 	balance, err := b.findBalance(id)
@@ -32,7 +32,7 @@ func (b *BalanceService) BalanceHandler(w http.ResponseWriter, r *http.Request) 
 		w.Write([]byte(err.Error()))
 		return
 	}
-	resp := &BalanceResponse{AccId: id, Balance: balance}
+	resp := &GetBalanceResponse{AccId: id, Balance: balance}
 
 	err = json.NewEncoder(w).Encode(resp)
 	if err != nil {
@@ -43,7 +43,7 @@ func (b *BalanceService) BalanceHandler(w http.ResponseWriter, r *http.Request) 
 	w.WriteHeader(http.StatusOK)
 }
 
-func (b *BalanceService) findBalance(id string) (int, error) {
+func (b *BalanceDBService) findBalance(id string) (int, error) {
 	var balance int
 	stmt, err := b.db.Prepare("SELECT balance from accounts where id = ?")
 	if err != nil {

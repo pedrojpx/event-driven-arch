@@ -4,15 +4,14 @@ CREATE DATABASE IF NOT EXISTS `balances`;
 USE `balances`;
 
 CREATE TABLE `accounts` (
-  `id` varchar(255) DEFAULT NULL,
-  `client_id` varchar(255) DEFAULT NULL,
-  `balance` int(11) DEFAULT NULL,
-  `created_at` date DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+  `id` varchar(255) not null,
+  `balance` int(11),
+  PRIMARY KEY(id)
+) ENGINE = InnoDB DEFAULT CHARSET = latin1;
 
 LOCK TABLES `accounts` WRITE;
 /*!40000 ALTER TABLE `accounts` DISABLE KEYS */;
-INSERT INTO `accounts` VALUES ('05f26ad8-f153-4851-b62d-bb79599b3d3e','aeab6609-114f-4598-8812-3a84861e9671',75,'2024-11-26'),('b888990e-c392-48e9-8766-e754b1041a73','d357761d-4122-446e-8736-4d3ba7aa001e',25,'2024-11-26'),('cfa72612-9f48-4642-83f1-57c715f1eccb','0b3b962e-8742-40d7-bda5-55c4b36a95ff',986,'2025-01-21'),('468562bc-d96b-4087-8fb5-255a48f3655d','475efed7-6208-4938-abaf-8a417d936952',1014,'2025-01-21');
+INSERT INTO `accounts` VALUES ('05f26ad8-f153-4851-b62d-bb79599b3d3e',75),('b888990e-c392-48e9-8766-e754b1041a73',25),('cfa72612-9f48-4642-83f1-57c715f1eccb',986),('468562bc-d96b-4087-8fb5-255a48f3655d',1014);
 /*!40000 ALTER TABLE `accounts` ENABLE KEYS */;
 UNLOCK TABLES;
 

@@ -71,12 +71,12 @@ func (uc *CreateTransactionUsecase) Execute(ctx context.Context, input CreateTra
 		err = accRepo.UpdateBalance(from)
 		err = accRepo.UpdateBalance(to)
 		transactionCreatedOutput.TransactionID = transactino.ID
-		transactionCreatedOutput.AccountIDFrom = transactino.From.Client.ID
-		transactionCreatedOutput.AccountIDTo = transactino.To.Client.ID
+		transactionCreatedOutput.AccountIDFrom = transactino.From.ID
+		transactionCreatedOutput.AccountIDTo = transactino.To.ID
 		transactionCreatedOutput.Amount = transactino.Amount
 
-		balanceUpdatedOutput.AccountIDFrom = transactino.From.Client.ID
-		balanceUpdatedOutput.AccountIDTo = transactino.To.Client.ID
+		balanceUpdatedOutput.AccountIDFrom = transactino.From.ID
+		balanceUpdatedOutput.AccountIDTo = transactino.To.ID
 		balanceUpdatedOutput.BalanceAccFrom = transactino.From.Balance
 		balanceUpdatedOutput.BalanceAccTo = transactino.To.Balance
 
